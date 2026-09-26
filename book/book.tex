@@ -4,7 +4,7 @@
 \usepackage{amsmath,amssymb,mathtools}
 \usepackage{bm}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta, positioning, shapes, decorations.pathmorphing, calc}
+\usetikzlibrary{arrows.meta, positioning, shapes}
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{booktabs}
@@ -14,13 +14,9 @@
 \geometry{margin=2.5cm, top=2.5cm, bottom=2.5cm}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
-\usepackage{caption}
-\usepackage{subcaption}
-\usepackage{changepage}
-\usepackage{tcolorbox}
-\tcbuselibrary{skins,breakable}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{url}
 \usepackage{textcomp}
 \usepackage{parskip}
 
@@ -29,6 +25,8 @@
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 \definecolor{seagreen}{RGB}{0,100,80}
+\definecolor{skyblue}{RGB}{135,206,250}
+\definecolor{navy}{RGB}{25,40,80}
 
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},
@@ -47,99 +45,86 @@
     showstringspaces=false,
     showtabs=false,
     tabsize=2,
-    frame=single,
-    frameround=tttt
+    frame=single
 }
 \lstset{style=mystyle}
 
 \hypersetup{
     colorlinks=true,
-    linkcolor=seagreen!70!black,
-    citecolor=seagreen!70!black,
-    urlcolor=seagreen!70!black,
-    pdftitle={From the Ground Up: Derivatives $\to$ Backprop $\to$ Neural Networks},
-    pdfauthor={},
-    pdfsubject={Deep Learning, Backpropagation, Neural Networks}
+    linkcolor=navy,
+    citecolor=navy,
+    urlcolor=navy
 }
 
 \titleformat{\chapter}[display]
-    {\normalfont\huge\bfseries\color{seagreen!70!black}}
+    {\normalfont\huge\bfseries\color{navy}}
     {\chaptertitlename\ \thechapter}{20pt}{\Huge}
 
 \titleformat{\section}
-    {\normalfont\Large\bfseries\color{seagreen!60!black}}
+    {\normalfont\Large\bfseries\color{navy!80!black}}
     {\thesection}{1em}{}
 
 \titleformat{\subsection}
-    {\normalfont\large\bfseries\color{seagreen!50!black}}
+    {\normalfont\large\bfseries\color{navy!60!black}}
     {\thesubsection}{1em}{}
-
-\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
-\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
 
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\textit{From the Ground Up: Derivatives $\to$ Backprop $\to$ Neural Networks}}
 \fancyhead[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0pt}
 
-\newcommand{\boxtitle}[1]{%
-    \begin{tcolorbox}[colback=seagreen!5!white, colframe=seagreen!70!black, arc=2mm, boxrule=1pt]
-        #1
-    \end{tcolorbox}
-}
-
-\newcommand{\boxcode}[1]{%
-    \begin{tcolorbox}[colback=backcolour, colframe=codepurple!40!black, arc=1mm, boxrule=0.5pt]
-        #1
-    \end{tcolorbox}
+\newcommand{\boxkey}[1]{%
+    \noindent\fbox{\parbox{\textwidth}{\textbf{Key Idea.} #1}}%
 }
 
 \newcommand{\boxnote}[1]{%
-    \begin{tcolorbox}[colback=orange!5!white, colframe=orange!60!black, arc=2mm, boxrule=0.8pt]
-        \textbf{Note.} #1
-    \end{tcolorbox}
-}
-
-\newcommand{\boxkey}[1]{%
-    \begin{tcolorbox}[colback=blue!5!white, colframe=blue!60!black, arc=2mm, boxrule=0.8pt]
-        \textbf{Key Idea.} #1
-    \end{tcolorbox}
+    \noindent\fbox{\parbox{\textwidth}{\textbf{Note.} #1}}%
 }
 
 \newcommand{\boxwarning}[1]{%
-    \begin{tcolorbox}[colback=red!5!white, colframe=red!60!black, arc=2mm, boxrule=0.8pt]
-        \textbf{Caution.} #1
-    \end{tcolorbox}
+    \noindent\fbox{\parbox{\textwidth}{\textbf{Caution.} #1}}%
 }
 
 \newtheorem{definition}{Definition}[chapter]
-\newtheorem{remark}{Remark}[chapter]
-\newtheorem{examplebox}{Example}[chapter]
 
-\title{
-    \vspace{-1in}
-    {\Huge\bfseries From the Ground Up}\\[0.3cm]
-    {\LARGE Derivatives $\to$ Backprop $\to$ Neural Networks}\\[0.5cm]
-    {\large A Complete Lecture, Built in Layers}\\[0.3cm]
-    {\large\color{gray} 10 Sections --- From First Principles to Image Classification}\\[0.5cm]
-    \rule{\textwidth}{1pt}
-}
+\title{{\Huge\bfseries From the Ground Up}\\[0.3cm]
+{\LARGE Derivatives $\to$ Backprop $\to$ Neural Networks}\\[0.5cm]
+{\large A Complete Lecture, Built in Layers}\\[0.3cm]
+{\large\color{white} 10 Sections --- From First Principles to Image Classification\\[0.5cm]
+\rule{\textwidth}{1pt}\color{black}}}
 \author{}
 \date{}
+
+% ===== SKY-BLUE TITLE PAGE =====
+\newcommand{\skytitlepage}{%
+\begin{tikzpicture}[remember picture, overlay]
+    \fill[skyblue] (current page.south west) rectangle (current page.north east);
+    \fill[skyblue!80!white] (current page.south west) rectangle ([yshift=3cm]current page.north west);
+\end{tikzpicture}
+\begin{center}
+    \vspace{2cm}
+    {\Huge\bfseries\textcolor{skyblue!80!black}{From the Ground Up}}\\[0.5cm]
+    {\LARGE\textcolor{skyblue!80!black}Derivatives $\to$ Backprop $\to$ Neural Networks}\\[0.8cm]
+    {\large A Complete Lecture, Built in Layers}\\[0.5cm]
+    {\large\color{gray} 10 Sections --- From First Principles to Image Classification}
+\end{center}
+}
 
 \begin{document}
 
 \maketitle
 \thispagestyle{empty}
 
-\begin{abstract}
-This document presents a complete derivation of backpropagation from first principles, structured as a ten-part lecture. Beginning with the definition of the derivative and progressing through the chain rule, gradient descent, and the autograd engine, it builds intuition layer by layer until arriving at neural networks and their training. The material is designed for readers with no prior knowledge of deep learning---only basic calculus and programming are assumed. Every concept is motivated by a question, introduced with a concrete example, and formalized as code. By the end, the reader will understand why a neural network learns, and how the mathematics of the chain rule makes it all possible.
-\end{abstract}
+\vspace{1cm}
+\noindent\fbox{\parbox{0.9\textwidth}{\textbf{Abstract.}\\
+This document presents a complete derivation of backpropagation from first principles, structured as a ten-part lecture. Beginning with the definition of the derivative and progressing through the chain rule, gradient descent, and the autograd engine, it builds intuition layer by layer until arriving at neural networks and their training. The material is designed for readers with no prior knowledge of deep learning---only basic calculus and programming are assumed. Every concept is motivated by a question, introduced with a concrete example, and formalized as code. By the end, the reader will understand why a neural network learns, and how the mathematics of the chain rule makes it all possible.}}
+
+\vspace{1cm}
 
 \tableofcontents
 
+\clearpage
 \chapter{Derivatives}\label{ch:derivatives}
 
 \section{The Question}
@@ -632,34 +617,428 @@ Train accuracy climbs to 99\%. Test accuracy plateaus at 92.5\%.
 \section{What the Model Learned}
 Reshaping first-layer weights to $8 \times 8$ reveals stroke detectors---horizontal bars, verticals, diagonals. The second layer combines these into digit-part detectors. The third layer produces class scores. This hierarchy emerges \textbf{automatically} from gradient descent on a differentiable function. We never told the model ``look for strokes.''
 
-\section{What We Skipped}
+\section{What We Skipped (Now Covered)}
+
+Previously skipped topics are now deep-dived in later chapters:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Convolutions} --- restore spatial structure, more op complexity.
+    \item \textbf{Convolutions} --- Chapter~\ref{ch:cnn}. New op: convolution. New backward: transposed convolution.
+    \item \textbf{Vanishing/exploding gradients} --- Chapter~\ref{ch:vanishing}. Why deep networks fail, and how to fix it.
+    \item \textbf{Weight initialization} --- Chapter~\ref{ch:initialization}. Xavier and He initialization from variance preservation.
+    \item \textbf{Normalization} --- Chapter~\ref{ch:normalization}. Batch norm, layer norm. Why it works.
+    \item \textbf{Regularization} --- Chapter~\ref{ch:regularization}. Dropout, weight decay, data augmentation, early stopping.
+    \item \textbf{Better optimizers} --- Chapter~\ref{ch:optimization}. Momentum, RMSProp, Adam, learning rate schedules.
+    \item \textbf{Recurrent networks} --- Chapter~\ref{ch:rnn}. LSTM, GRU, backprop through time.
+    \item \textbf{Attention \& Transformers} --- Chapter~\ref{ch:attention}. Self-attention, multi-head, positional encoding.
+    \item \textbf{Neural Turing Machines / NTP} --- Chapter~\ref{ch:ntp}. External memory, content-based addressing.
     \item \textbf{Vectorization (NumPy/Tensors)} --- 100$\times$ faster, hides elementwise ops.
-    \item \textbf{Better optimizers} --- momentum, Adam. Same backprop, better use of gradients.
-    \item \textbf{Regularization} --- dropout, weight decay. Improve generalization.
 \end{itemize}
-All are \textbf{refinements on the same core loop}: forward, backward, step. The math is unchanged.
+All are \textbf{refinements on the same core loop}: forward, backward, step. The engine never changes.
+\clearpage
+
+% ============================================================
+% CHAPTER 11: VANISHING & EXPLODING GRADIENTS
+% ============================================================
+\chapter{Vanishing \& Exploding Gradients}\label{ch:vanishing}
+
+\section{The Problem}
+
+In a deep network with $L$ layers, the gradient of the loss w.r.t. early-layer weights is a product of $L$ matrices:
+
+\begin{equation}
+    \frac{\partial L}{\partial W^{(1)}} = \frac{\partial L}{\partial h^{(L)}} \prod_{l=2}^{L} \frac{\partial h^{(l)}}{\partial h^{(l-1)}} \frac{\partial h^{(l)}}{\partial W^{(l)}}
+\end{equation}
+
+When these factors are consistently $< 1$, the gradient vanishes exponentially with depth. When $> 1$, it explodes.
+
+\begin{boxwarning}{}
+\textbf{Vanishing gradients:} Early layers receive near-zero gradient $\implies$ they don't learn.\\
+\textbf{Exploding gradients:} Gradients grow exponentially $\implies$ numerical overflow, training diverges.
+\end{boxwarning}
+
+\section{Why Activations Matter}
+
+For sigmoid: $\sigma'(x) = \sigma(x)(1-\sigma(x)) \leq 1/4$. With $L$ layers, the gradient is scaled by at most $(1/4)^L$.
+
+For ReLU: $\text{relu}'(x) = \mathbb{1}[x > 0]$. This is either 0 or 1 --- no vanishing from the activation side.
+
+\section{Solutions}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{ReLU activations} --- gradient is 1 or 0, no multiplicative decay.
+    \item \textbf{Residual connections} --- $h^{(l)} = f(h^{(l-1)}) + h^{(l-1)}$. The gradient has a direct path.
+    \item \textbf{Proper initialization} --- keep signal variance stable (Chapter~\ref{ch:initialization}).
+    \item \textbf{Batch normalization} --- stabilize activations (Chapter~\ref{ch:normalization}).
+\end{itemize}
+
+\clearpage
+
+% ============================================================
+% CHAPTER 12: INITIALIZATION
+% ============================================================
+\chapter{Weight Initialization}\label{ch:initialization}
+
+\section{Variance Preservation}
+
+For a linear layer $h = Wx + b$ with input dimension $n_{\text{in}}$:
+
+\begin{equation}
+    \text{Var}(W) = \frac{1}{n_{\text{in}}}
+\end{equation}
+
+\section{Xavier (Glorot) Initialization}
+
+Accounts for both forward and backward variance preservation:
+
+\begin{equation}
+    W \sim \mathcal{N}\!\left(0,\; \frac{2}{n_{\text{in}} + n_{\text{out}}}\right)
+\end{equation}
+
+\begin{boxnote}{}
+For $\tanh$ activations: use Xavier initialization.
+\end{boxnote}
+
+\section{He Initialization}
+
+For ReLU, half the neurons are zero. The forward pass variance doubles:
+
+\begin{equation}
+    W \sim \mathcal{N}\!\left(0,\; \frac{2}{n_{\text{in}}}\right)
+\end{equation}
+
+\begin{boxnote}{}
+For ReLU activations: use He initialization.
+\end{boxnote}
+
+\section{The Big Picture}
+
+\begin{boxkey}{}
+Initialization is the first thing you do before any learning happens. Bad initialization means the network starts in a saturated or dead regime where gradients are useless.
+\end{boxkey}
+
+\clearpage
+
+% ============================================================
+% CHAPTER 13: NORMALIZATION
+% ============================================================
+\chapter{Normalization}\label{ch:normalization}
+
+\section{Batch Normalization}
+
+For a mini-batch $\{x_1, \ldots, x_m\}$:
+
+\begin{equation}
+    \hat{x}_i = \frac{x_i - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}}, \qquad
+    y_i = \gamma \hat{x}_i + \beta
+\end{equation}
+
+where $\mu_B = \frac{1}{m}\sum_i x_i$, $\sigma_B^2 = \frac{1}{m}\sum_i (x_i - \mu_B)^2$.
+
+\begin{boxnote}{}
+BN makes the loss landscape smoother. The gradient becomes more stable because activations don't shift during training (the \emph{internal covariate shift} problem).
+}
+\end{boxnote}
+
+\section{Layer Normalization}
+
+Normalize across features instead of batch elements. Independent of batch size --- essential for RNNs and Transformers.
+
+\section{Why It Matters}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Faster convergence:} gradients are better scaled.
+    \item \textbf{Higher learning rates:} the loss landscape is smoother.
+    \item \textbf{Regularization effect:} batch noise provides slight regularization.
+    \item \textbf{Deeper networks:} makes training very deep models possible.
+\end{itemize}
+
+\clearpage
+
+% ============================================================
+% CHAPTER 14: REGULARIZATION
+% ============================================================
+\chapter{Regularization}\label{ch:regularization}
+
+\section{Weight Decay (L2 Regularization)}
+
+\begin{equation}
+    L_{\text{reg}} = L_{\text{original}} + \frac{\lambda}{2} \sum_{i} \theta_i^2
+\end{equation}
+
+\begin{boxnote}{}
+Each step multiplies weights by $(1-\eta\lambda) < 1$ before the gradient step.
+}
+\end{boxnote}
+
+\section{Dropout}
+
+\begin{equation}
+    \text{Dropout}(x_i) = \begin{cases} 0 & \text{with probability } p \\ x_i / (1-p) & \text{with probability } 1-p \end{cases}
+\end{equation}
+
+The division by $(1-p)$ is \textbf{inverted dropout}.
+
+\begin{boxkey}{}
+Dropout trains an exponential number of \textbf{thinned networks} simultaneously. At test time, all networks are active but with scaled weights.
+}
+\end{boxkey}
+
+\section{Data Augmentation and Early Stopping}
+
+Data augmentation increases the effective training set. Early stopping monitors validation loss and stops when it increases.
+
+\clearpage
+
+% ============================================================
+% CHAPTER 15: OPTIMIZATION
+% ============================================================
+\chapter{Optimization}\label{ch:optimization}
+
+\section{Momentum}
+
+\begin{align}
+    v_t &= \beta v_{t-1} + (1-\beta) \nabla L(\theta_t) \\
+    \theta_{t+1} &= \theta_t - \eta \cdot v_t
+\end{align}
+
+Typical $\beta = 0.9$.
+
+\section{RMSProp}
+
+\begin{align}
+    s_t &= \beta s_{t-1} + (1-\beta) (\nabla L)^2 \\
+    \theta_{t+1} &= \theta_t - \frac{\eta}{\sqrt{s_t} + \epsilon} \nabla L
+\end{align}
+
+\section{Adam}
+
+Combines momentum and RMSProp with bias correction:
+
+\begin{align}
+    m_t &= \beta_1 m_{t-1} + (1-\beta_1) \nabla L \\
+    v_t &= \beta_2 v_{t-1} + (1-\beta_2) (\nabla L)^2 \\
+    \hat{m}_t &= \frac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1-\beta_2^t} \\
+    \theta_{t+1} &= \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t
+\end{align}
+
+Typical values: $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$.
+
+\begin{boxkey}{}
+Adam is the default optimizer for most deep learning. Same backprop, better use of gradients.
+}
+\end{boxkey}
+
+\section{Learning Rate Schedules}
+
+Step decay, exponential decay, cosine annealing, warmup.
+
+\clearpage
+
+% ============================================================
+% CHAPTER 16: CONVOLUTIONAL NETWORKS
+% ============================================================
+\chapter{Convolutional Networks}\label{ch:cnn}
+
+\section{The Convolution Operation}
+
+A $k \times k$ filter $W$ sliding over an input:
+
+\begin{equation}
+    y_{i,j} = \sum_{a=0}^{k-1} \sum_{b=0}^{k-1} W_{a,b} \cdot x_{i+a, j+b} + b
+\end{equation}
+
+\section{Why Convolutions?}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Parameter sharing:} Same filter everywhere --- $k^2$ parameters regardless of image size.
+    \item \textbf{Translation invariance:} A feature detector works regardless of position.
+    \item \textbf{Spatial hierarchy:} Edges $\to$ parts $\to$ objects.
+\end{itemize}
+
+\section{The Backward Pass}
+
+The backward pass of a convolution is a \textbf{transposed convolution} --- the adjoint of the forward convolution.
+
+\begin{boxnote}{}
+\textbf{Conv backward = transposed conv.} Same chain rule, different computational graph.
+}
+\end{boxnote}
+
+\section{Residual Connections}
+
+\begin{equation}
+    h^{(l)} = f(h^{(l-1)}, W^{(l)}) + h^{(l-1)}
+\end{equation}
+
+Skip connections provide a direct gradient path, enabling 100+ layer networks.
+
+\clearpage
+
+% ============================================================
+% CHAPTER 17: RECURRENT NETWORKS
+% ============================================================
+\chapter{Recurrent Networks}\label{ch:rnn}
+
+\section{The Recurrence}
+
+\begin{align}
+    h_t &= \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h) \\
+    y_t &= W_{hy} h_t + b_y
+\end{align}
+
+Same weights at every time step. Hidden state carries information through the sequence.
+
+\section{Backpropagation Through Time (BPTT)}
+
+\begin{equation}
+    \frac{\partial L}{\partial W_{hh}} = \sum_{t=1}^{T} \frac{\partial L}{\partial h_T} \prod_{s=t+1}^{T} \frac{\partial h_s}{\partial h_{s-1}} \frac{\partial h_t}{\partial W_{hh}}
+\end{equation}
+
+\section{LSTM and GRU}
+
+\textbf{LSTM:} Three gates (forget, input, output) control information flow. The cell state provides a direct additive path for gradient flow.
+
+\begin{align}
+    f_t &= \sigma(W_f [h_{t-1}, x_t] + b_f) & \text{(forget)} \\
+    i_t &= \sigma(W_i [h_{t-1}, x_t] + b_i) & \text{(input)} \\
+    o_t &= \sigma(W_o [h_{t-1}, x_t] + b_o) & \text{(output)} \\
+    c_t &= f_t \odot c_{t-1} + i_t \odot \tilde{c}_t & \text{(cell)} \\
+    h_t &= o_t \odot \tanh(c_t) & \text{(output)}
+\end{align}
+
+\textbf{GRU:} Two gates (reset, update). Simpler than LSTM, matches its performance with fewer parameters.
+
+\begin{boxkey}{}
+LSTM/GRU solve vanishing gradients by adding a \emph{gated} cell state with a direct additive path.
+}
+\end{boxkey}
+
+\clearpage
+
+% ============================================================
+% CHAPTER 18: ATTENTION & TRANSFORMERS
+% ============================================================
+\chapter{Attention \& Transformers}\label{ch:attention}
+
+\section{Attention Mechanism}
+
+\begin{equation}
+    \text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+\end{equation}
+
+Where $Q$ (queries), $K$ (keys), $V$ (values), $d_k$ (scaling dimension).
+
+\section{Multi-Head Attention}
+
+\begin{equation}
+    \text{MultiHead}(Q,K,V) = \text{Concat}(h_1, \ldots, h_h) W^O
+\end{equation}
+
+where $h_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)$.
+
+\section{Transformer Architecture}
+
+Positional encoding provides sequence order. Self-attention provides context. Layer normalization stabilizes training. The entire model is a composition of differentiable operations.
+
+\textbf{Encoder-decoder} or \textbf{decoder-only} (GPT-style).
+
+\clearpage
+
+% ============================================================
+% CHAPTER 19: NEURAL TURING MACHINE / NTP
+% ============================================================
+\chapter{Neural Turing Machine \& NTP}\label{ch:ntp}
+
+\section{The Limitation of Standard Networks}
+
+Standard neural networks have \textbf{fixed} memory capacity bounded by the number of parameters. They cannot learn to \emph{read and write} external memory.
+
+\begin{boxkey}{}
+A neural network with fixed parameters has limited memory. To compute arbitrary algorithms, you need external, addressable memory --- like a Turing machine, but differentiable.
+}
+\end{boxkey}
+
+\section{Neural Turing Machine}
+
+An NTM consists of:
+\begin{itemize}[leftmargin=*]
+    \item A \textbf{controller} (LSTM or MLP).
+    \item An \textbf{external memory matrix} $M \in \mathbb{R}^{N \times W}$.
+    \item \textbf{Read/write heads} that address any location.
+\end{itemize}
+
+\section{Content-Based Addressing}
+
+Read from memory location $i$:
+\begin{equation}
+    r_t = M_t \cdot k_t
+\end{equation}
+
+where similarity is computed as cosine similarity or dot product.
+
+\section{The Gradient Through Memory}
+
+For content-based reading:
+\begin{equation}
+    \frac{\partial r_t}{\partial M_t(i,j)} = k_t(j) \cdot w_t(i)
+\end{equation}
+
+The chain rule applies directly---same backprop, just with a memory tensor.
+
+\section{Why It Matters}
+
+\begin{boxnote}{}
+NTPs demonstrate \textbf{algorithmic generalization}---executing algorithms on inputs longer than those seen during training. They can learn to copy, sort, and associate recall.
+}
+\end{boxnote}
+
+\section{Summary of Stage 3}
+
+\begin{table}[H]
+\centering
+\caption{Architectural progression: new ops, new backward passes.}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Architecture} & \textbf{New Op} & \textbf{New Backward} \\
+\midrule
+MLP & Linear + activation & Chain rule \\
+CNN & Convolution & Transposed convolution \\
+RNN & Recurrence & Backprop through time \\
+LSTM/GRU & Gated cell & Gate derivatives \\
+Transformer & Self-attention & Matrix ops + softmax \\
+NTM & Read/write memory & Content-based addressing \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Every new architecture adds one more differentiable operation. The engine --- forward, backward, step --- is unchanged.
+
+\clearpage
 
 \chapter*{Summary}
 \addcontentsline{toc}{chapter}{Summary}
 
-In one paragraph: Every parameter in a neural network has a derivative: how the loss changes when you nudge that parameter. Gradient descent uses these derivatives to step each parameter downhill. The chain rule tells us how to compute the derivative of a composition --- multiply local derivatives along the path. Backprop is the chain rule applied systematically: build a graph on the forward pass, walk it backward to compute every parameter's gradient in one pass. A neural network is a composition of simple differentiable functions --- linear combinations and nonlinearities. Training is a loop: forward to compute loss, backward to compute gradients, update to nudge parameters. Everything else --- convs, attention, transformers --- is a new differentiable op with a new local derivative. The engine never changes.
-
-That's backprop from the ground up.
+In one paragraph: Every parameter in a neural network has a derivative: how the loss changes when you nudge that parameter. Gradient descent uses these derivatives to step each parameter downhill. The chain rule tells us how to compute the derivative of a composition --- multiply local derivatives along the path. Backprop is the chain rule applied systematically: build a graph on the forward pass, walk it backward to compute every parameter's gradient in one pass. A neural network is a composition of simple differentiable functions --- linear combinations and nonlinearities. Training is a loop: forward to compute loss, backward to compute gradients, update to nudge parameters. Every new architecture --- convolutions, attention, memory-augmented networks --- is just one more differentiable op with one more local derivative. The engine never changes. That's backprop from the ground up.
 
 \chapter*{Exercises}
 \addcontentsline{toc}{chapter}{Exercises}
 
 \begin{enumerate}[label=\textbf{\arabic*.}, leftmargin=*]
-    \item \textbf{Trace by hand.} Take a 2-input neuron with known weights and a known input, and compute forward and backward by hand. Verify with the code.
-    \item \textbf{Break \texttt{+=}.} Replace \texttt{+=} with \texttt{=} in \texttt{\_add\_}'s \texttt{\_backward}. Test on a graph where a value is used twice. Watch gradients come out wrong.
-    \item \textbf{Add \texttt{relu}.} Derive its local derivative. Implement \texttt{\_backward}. Compare convergence to $\tanh$.
+    \item \textbf{Trace by hand.} Compute forward and backward for a 2-input neuron. Verify with the code.
+    \item \textbf{Break \texttt{+=}.} Replace with \texttt{=}. Watch gradients fail on a branching graph.
+    \item \textbf{Add ReLU.} Derive its local derivative. Compare convergence to $\tanh$.
     \item \textbf{Remove gradient zeroing.} See training diverge. Understand why.
-    \item \textbf{Try MSE + $\tanh$ on classification.} Compare the loss curve. You'll see the well-known pathology: slow early training.
-    \item \textbf{Print the graph.} Write a function that walks \texttt{\_prev} from a loss node and prints the operations. See the DAG.
-    \item \textbf{Swap in NumPy.} Wrap arrays instead of scalars. Same math, 100$\times$ faster, new complexity: broadcasting.
-    \item \textbf{Add a conv.} Build a 3$\times$3 filter that slides over the image. Derive its backward (a transposed convolution). Re-run the digit task. See the accuracy jump.
+    \item \textbf{Try MSE + $\tanh$ on classification.} Observe slow early training.
+    \item \textbf{Print the graph.} Walk \texttt{\_prev} from loss. See the DAG.
+    \item \textbf{Swap in NumPy.} Same math, 100$\times$ faster. New complexity: broadcasting.
+    \item \textbf{Add a conv.} Derive its backward. Re-run the digit task.
+    \item \textbf{Implement Xavier init.} Derive from variance preservation. Compare to random init.
+    \item \textbf{Add batch norm.} Derive the backward of BN. Train deeper than without it.
+    \item \textbf{Add dropout.} Compare train/test gap with and without.
+    \item \textbf{Compare optimizers.} SGD, SGD+momentum, Adam. Same backprop, different convergence.
+    \item \textbf{Add a conv layer.} Build a 3$\times$3 filter. Slide over the image.
+    \item \textbf{Implement an LSTM.} Derive all gate gradients. Compare to vanilla RNN.
+    \item \textbf{Implement attention.} Compute $QK^\top/\sqrt{d}$. Backprop manually.
+    \item \textbf{Build an NTM.} Add read/write memory to micrograd. Learn to copy a sequence.
 \end{enumerate}
 Each exercise targets a specific piece of intuition. Doing them all gives you the full picture.
 
@@ -672,6 +1051,11 @@ Each exercise targets a specific piece of intuition. Doing them all gives you th
 \bibitem{lecun2015} LeCun~Y., Bengio~Y., Hinton~G. ``Deep learning.'' \textit{Nature}, 521:436--444, 2015.
 \bibitem{mikolov2012} Mikolov~T., Chen~K., Corrado~G., Dean~J. ``Efficient Estimation of Word Representations in Vector Space.'' \textit{arXiv:1301.3781}, 2012.
 \bibitem{colt} Colt: \textit{An Open-Source Auto-Differentiation Engine in C++} (Inspiration for the tiny-\texttt{grad} style of autograd engine.)
+\bibitem{graves2014} Graves~A., Wayne~G., Reynolds~M., Harley~T., Danihelka~I., Grabski~M., Gorach~J. ``Hybrid Computing using a Neural Network with a External Memory.'' \textit{NeurIPS}, 2014.
+\bibitem{he2015} He~K., Zhang~X., Ren~S., Sun~J. ``Deep Residual Learning for Image Recognition.'' \textit{CVPR}, 2016.
+\bibitem{vaswani2017} Vaswani~A., Shazeer~N., Parmar~N., Uszkoreit~J., Jones~L., Gomez~A.N., Kaiser~\L, Polosukhin~I. ``Attention Is All You Need.'' \textit{NeurIPS}, 2017.
+\bibitem{kingma2014} Kingma~D.P., Ba~J. ``Adam: A Method for Stochastic Optimization.'' \textit{ICLR}, 2015.
+\bibitem{ioffe2015} Ioffe~S., Szegedy~C. ``Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift.'' \textit{ICML}, 2015.
 \end{thebibliography}
 
 \end{document}
