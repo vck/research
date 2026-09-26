@@ -1,0 +1,677 @@
+\documentclass[11pt,a4paper]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{bm}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes, decorations.pathmorphing, calc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm, top=2.5cm, bottom=2.5cm}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{changepage}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{textcomp}
+\usepackage{parskip}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{seagreen}{RGB}{0,100,80}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta!70!black},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    frame=single,
+    frameround=tttt
+}
+\lstset{style=mystyle}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=seagreen!70!black,
+    citecolor=seagreen!70!black,
+    urlcolor=seagreen!70!black,
+    pdftitle={From the Ground Up: Derivatives $\to$ Backprop $\to$ Neural Networks},
+    pdfauthor={},
+    pdfsubject={Deep Learning, Backpropagation, Neural Networks}
+}
+
+\titleformat{\chapter}[display]
+    {\normalfont\huge\bfseries\color{seagreen!70!black}}
+    {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+\titleformat{\section}
+    {\normalfont\Large\bfseries\color{seagreen!60!black}}
+    {\thesection}{1em}{}
+
+\titleformat{\subsection}
+    {\normalfont\large\bfseries\color{seagreen!50!black}}
+    {\thesubsection}{1em}{}
+
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{From the Ground Up: Derivatives $\to$ Backprop $\to$ Neural Networks}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\newcommand{\boxtitle}[1]{%
+    \begin{tcolorbox}[colback=seagreen!5!white, colframe=seagreen!70!black, arc=2mm, boxrule=1pt]
+        #1
+    \end{tcolorbox}
+}
+
+\newcommand{\boxcode}[1]{%
+    \begin{tcolorbox}[colback=backcolour, colframe=codepurple!40!black, arc=1mm, boxrule=0.5pt]
+        #1
+    \end{tcolorbox}
+}
+
+\newcommand{\boxnote}[1]{%
+    \begin{tcolorbox}[colback=orange!5!white, colframe=orange!60!black, arc=2mm, boxrule=0.8pt]
+        \textbf{Note.} #1
+    \end{tcolorbox}
+}
+
+\newcommand{\boxkey}[1]{%
+    \begin{tcolorbox}[colback=blue!5!white, colframe=blue!60!black, arc=2mm, boxrule=0.8pt]
+        \textbf{Key Idea.} #1
+    \end{tcolorbox}
+}
+
+\newcommand{\boxwarning}[1]{%
+    \begin{tcolorbox}[colback=red!5!white, colframe=red!60!black, arc=2mm, boxrule=0.8pt]
+        \textbf{Caution.} #1
+    \end{tcolorbox}
+}
+
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{remark}{Remark}[chapter]
+\newtheorem{examplebox}{Example}[chapter]
+
+\title{
+    \vspace{-1in}
+    {\Huge\bfseries From the Ground Up}\\[0.3cm]
+    {\LARGE Derivatives $\to$ Backprop $\to$ Neural Networks}\\[0.5cm]
+    {\large A Complete Lecture, Built in Layers}\\[0.3cm]
+    {\large\color{gray} 10 Sections --- From First Principles to Image Classification}\\[0.5cm]
+    \rule{\textwidth}{1pt}
+}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+This document presents a complete derivation of backpropagation from first principles, structured as a ten-part lecture. Beginning with the definition of the derivative and progressing through the chain rule, gradient descent, and the autograd engine, it builds intuition layer by layer until arriving at neural networks and their training. The material is designed for readers with no prior knowledge of deep learning---only basic calculus and programming are assumed. Every concept is motivated by a question, introduced with a concrete example, and formalized as code. By the end, the reader will understand why a neural network learns, and how the mathematics of the chain rule makes it all possible.
+\end{abstract}
+
+\tableofcontents
+
+\chapter{Derivatives}\label{ch:derivatives}
+
+\section{The Question}
+
+\begin{boxkey}{}
+The entire motivation for derivatives in deep learning can be stated in one sentence:
+\end{boxkey}
+
+\vspace{0.5cm}
+
+\begin{center}
+    \fbox{\parbox{0.8\textwidth}{\centering
+        \textbf{You have a function $f(x)$. You can change $x$. You want to make $f(x)$ smaller.\\
+        Which way should you move $x$?}
+    }}
+\end{center}
+
+\vspace{0.5cm}
+
+\section{The Definition}
+
+\begin{definition}[Derivative]
+The derivative of a function $f$ at $x$ is:
+\begin{equation}\label{eq:deriv_def}
+    f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}
+\end{equation}
+Read it in plain English: \textit{``If I nudge $x$ by a tiny amount, how much does $f$ change, per unit of nudge?''}
+\end{definition}
+
+Examples:
+\begin{table}[H]
+\centering
+\caption{Common derivative rules.}
+\begin{tabular}{@{}lll@{}}
+\toprule
+$f(x)$ & $f'(x)$ & meaning \\
+\midrule
+$x^2$ & $2x$ & at $x=3$, slope is 6 \\
+$3x+1$ & $3$ & constant slope \\
+$\sin(x)$ & $\cos(x)$ & oscillates \\
+$e^x$ & $e^x$ & slope equals value \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{The Linear Approximation}
+
+For small $h$:
+\begin{equation}\label{eq:linapprox}
+    f(x + h) \approx f(x) + f'(x) \cdot h
+\end{equation}
+``The new value $\approx$ old value + (slope) $\times$ (how far I moved).''
+This is the \textbf{only} first-order approximation matching $f$ at $x$ with correct slope. It is what makes derivatives useful.
+
+\section{The Learning Rule}
+
+If $f'(x) > 0$: increasing $x$ increases $f$ $\implies$ decrease $x$.
+If $f'(x) < 0$: increasing $x$ decreases $f$ $\implies$ increase $x$.
+Both cases:
+\begin{equation}
+    x_{\text{new}} = x - \eta \cdot f'(x)
+\end{equation}
+where $\eta$ (the learning rate) is a small positive number. This is gradient descent in one dimension.
+
+\section{The Sign, Not the Magnitude}
+
+The derivative's \textbf{sign} tells you direction. Its \textbf{magnitude} tells you steepness.
+Large $|f'(x)|$ = steep = big steps are safe. Small $|f'(x)|$ = flat = small steps, or you'll overshoot.
+
+\chapter{The Chain Rule}\label{ch:chainrule}
+
+\section{Compositions}
+
+Suppose:
+\begin{equation}
+    u = 3x + 1, \quad v = u^2, \quad f = v + 5
+\end{equation}
+The rule:
+\begin{equation}\label{eq:chainrule}
+    \frac{df}{dx} = \frac{df}{dv} \cdot \frac{dv}{du} \cdot \frac{du}{dx}
+\end{equation}
+\textbf{Multiply the local derivatives along the path.}
+
+\section{Intuition: Ratios Cancel}
+
+Think of each derivative as a \textbf{ratio of small changes}:
+\begin{equation}
+    \frac{\Delta f}{\Delta x} = \frac{\Delta f}{\Delta v} \cdot \frac{\Delta v}{\Delta u} \cdot \frac{\Delta u}{\Delta x}
+\end{equation}
+The $\Delta v$s and $\Delta u$s cancel like fractions. It is arithmetic bookkeeping of ``how a small change ripples through each stage.''
+
+\section{Concrete Example}
+
+With $x = 2$: $u=7$, $du/dx=3$; $v=49$, $dv/du=14$; $f=54$, $df/dv=1$.
+Chain rule: $df/dx = 1 \cdot 14 \cdot 3 = 42$.
+Check directly: $f(x) = (3x+1)^2+5$, $f'(x) = 6(3x+1) = 42$. \checkmark
+
+\section{Branching}
+
+If $f$ depends on $x$ through multiple paths, sum the contributions:
+\begin{equation}
+    f = g(x) + h(x) \implies \frac{df}{dx} = \frac{dg}{dx} + \frac{dh}{dx}
+\end{equation}
+This is why every \texttt{\_backward} uses \texttt{+=} instead of \texttt{=}.
+
+\section{Why This Is the Whole Game}
+
+Every neural network is a deeply nested composition. $\text{Loss} = L(\text{MLP}(\text{image}))$.
+The chain rule lets us compute $\partial\text{Loss}/\partial\theta$ for every parameter $\theta$ by multiplying local derivatives along the path from $\theta$ to the loss.
+
+\chapter{Gradient Descent}\label{ch:gradientdescent}
+
+\section{The Optimization Problem}
+
+We want:
+\begin{equation}
+    \theta^* = \arg\min_\theta \; L(\theta)
+\end{equation}
+We can't solve analytically (nonlinear, millions of parameters). But we can:
+\begin{enumerate}[leftmargin=*]
+    \item Compute $dL/d\theta$ at current $\theta$.
+    \item Take a small step in the opposite direction.
+    \item Repeat.
+\end{enumerate}
+
+\section{The Update Rule}
+
+\begin{equation}
+    \theta \leftarrow \theta - \eta \cdot \frac{dL}{d\theta}
+\end{equation}
+If $dL/d\theta > 0$: decrease $\theta$. If $dL/d\theta < 0$: increase $\theta$. If $dL/d\theta = 0$: at a critical point.
+
+\section{The Learning Rate $\eta$}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Too small:} training crawls.
+    \item \textbf{Too large:} overshoot, oscillate, diverge.
+    \item \textbf{Just right:} smooth descent to a local minimum.
+\end{itemize}
+Typical values: 0.001 to 0.1. It is the single most important hyperparameter.
+
+\section{Why It Works}
+
+For small $\eta$, the linear approximation holds. Each step provably decreases $L$ (up to second-order terms). Gradient descent is \textbf{local search guided by a global mathematical tool}.
+
+\chapter{Gradients (Many Inputs)}\label{ch:gradients}
+
+\section{From Scalar to Vector}
+
+When $L$ depends on many parameters $\theta = (\theta_1, \ldots, \theta_n)$:
+\begin{equation}
+    \nabla L = \left[\frac{\partial L}{\partial \theta_1}, \frac{\partial L}{\partial \theta_2}, \ldots, \frac{\partial L}{\partial \theta_n}\right]
+\end{equation}
+Each component answers: \textit{``If I nudge only $\theta_i$, how much does $L$ change?''}
+
+\section{The Update Becomes Elementwise}
+
+\begin{equation}
+    \theta_i \leftarrow \theta_i - \eta \cdot \frac{\partial L}{\partial \theta_i} \qquad \text{for every } i
+\end{equation}
+Still just ``move each parameter opposite to its own derivative.''
+
+\section{The Gradient Points Uphill}
+
+$\nabla L$ points in the direction of \textbf{steepest ascent}. So $-\nabla L$ points downhill.
+
+\section{The Big Realization}
+
+Computing $\partial L/\partial\theta_i$ naively requires $N$ forward passes for $N$ parameters.
+\textbf{Backprop computes all gradients in one backward pass.} Total cost $\approx 2\times$ forward, independent of parameter count.
+
+\chapter{The Autograd Engine}\label{ch:autograd}
+
+\section{The Idea}
+
+Every number is a \texttt{Value}. Each remembers: (1) its data, (2) its gradient (starts at 0), (3) how it was created, (4) its \texttt{\_backward} function.
+
+\begin{lstlisting}[language=Python, frame=single, caption={The Value class skeleton}]
+class Value:
+    def __init__(self, data, _children=(), _op=''):
+        self.data = data
+        self.grad = 0.0
+        self._backward = lambda: None
+        self._prev = set(_children)
+        self._op = _op
+\end{lstlisting}
+
+\section{Local Derivatives as Code}
+
+\textbf{Addition:} $c = a + b$, so $\partial c/\partial a = 1$, $\partial c/\partial b = 1$.
+\begin{lstlisting}[language=Python, frame=single]
+def __add__(self, other):
+    other = other if isinstance(other, Value) else Value(other)
+    out = Value(self.data + other.data, (self, other), '+')
+    def _backward():
+        self.grad  += 1.0 * out.grad
+        other.grad += 1.0 * out.grad
+    out._backward = _backward
+    return out
+\end{lstlisting}
+
+\textbf{Multiplication:} $c = a \cdot b$, so $\partial c/\partial a = b$, $\partial c/\partial b = a$.
+\begin{lstlisting}[language=Python, frame=single]
+def __mul__(self, other):
+    other = other if isinstance(other, Value) else Value(other)
+    out = Value(self.data * other.data, (self, other), '*')
+    def _backward():
+        self.grad  += other.data * out.grad
+        other.grad += self.data  * out.grad
+    out._backward = _backward
+    return out
+\end{lstlisting}
+
+\section{Why \texttt{+=}?}
+
+If a value is used multiple times, gradients from all uses must \textbf{sum}. Example:
+$f = a \cdot b + a \cdot c \implies \partial f/\partial a = b + c$.
+The \texttt{+=} in both \texttt{\_backward} calls accumulates the two contributions.
+
+\section{Derived Operations}
+
+$a - b$ = $a + (-b)$, $a / b$ = $a \cdot (b^{-1})$, $a^n$ (power rule), $\tanh$, $\exp$, $\log$, $\text{relu}$ (direct rules). Each is just one more local derivative.
+
+\section{Forward Pass Builds a Graph}
+
+When you write \texttt{loss = ((y\_pred - y) \*\* 2).tanh()}, Python constructs a tree of \texttt{Value} objects. Each has \texttt{\_prev} pointing to its inputs. The graph is the computation.
+
+\section{Backward Pass Uses the Chain Rule}
+
+\begin{lstlisting}[language=Python, frame=single, caption={The backward algorithm}]
+def backward(self):
+    topo, visited = [], set()
+    def build(v):
+        if v not in visited:
+            visited.add(v)
+            for c in v._prev: build(c)
+            topo.append(v)
+    build(self)
+    self.grad = 1.0
+    for v in reversed(topo):
+        v._backward()
+\end{lstlisting}
+1. Topological sort (each node after its dependencies).
+2. Seed: \texttt{self.grad = 1.0} ($\partial\text{loss}/\partial\text{loss} = 1$).
+3. Reverse walk: each node's \texttt{\_backward} pushes gradient to parents.
+
+\chapter{Backprop}\label{ch:backprop}
+
+\section{The Setup}
+
+We have built a graph. \texttt{loss} is the root. Every parameter $\theta$ is a leaf. We want $\partial\text{loss}/\partial\theta$ for every leaf.
+
+\section{Topological Order}
+
+Process each node \textbf{after} every node that depends on it. Visiting in reverse topological order means the root comes first, then its consumers, then down to the leaves.
+
+\section{Seeding and the Reverse Walk}
+
+$\text{loss.grad} = 1.0$ because $\partial\text{loss}/\partial\text{loss} = 1$.
+For each node, \texttt{\_backward()}: reads \texttt{node.grad}, multiplies by local derivatives, adds to inputs' \texttt{.grad}.
+This is the chain rule, evaluated in reverse, with accumulation at every node.
+
+\section{Why This Is Efficient}
+
+Naive: $N$ forward passes for $N$ parameters.
+Backprop: 1 forward + 1 backward $\approx 2\times$ forward, independent of parameter count.
+The chain rule is reused: intermediate results computed once and shared across paths.
+
+\section{Backprop = Reverse-Mode Autodiff}
+
+``Reverse mode'' because we walk backward from the output. ``Auto-diff'' because we don't write gradients by hand --- the graph is differentiated automatically via each op's \texttt{\_backward}.
+
+\section{The Full Picture}
+
+\begin{verbatim}
+FORWARD:
+  for each op in order:
+      value = op(inputs)
+      save inputs and value for backward
+
+BACKWARD:
+  output.grad = 1
+  for each op in reverse order:
+      for each input of op:
+          input.grad += local_derivative(op, input) * op.output.grad
+\end{verbatim}
+That's backprop. Everything else is engineering.
+
+\chapter{Neural Networks}\label{ch:neuralnetworks}
+
+\section{A Neuron}
+
+A neuron is a small differentiable function:
+\begin{equation}
+    h = \tanh(w \cdot x + b)
+\end{equation}
+
+\begin{lstlisting}[language=Python, frame=single, caption={A neuron}]
+class Neuron:
+    def __init__(self, nin):
+        self.w = [Value(random.uniform(-1, 1) / (nin ** 0.5)) for _ in range(nin)]
+        self.b = Value(0.0)
+
+    def __call__(self, x):
+        act = self.b
+        for xi, wi in zip(x, self.w):
+            act = act + xi * wi
+        return act.tanh()
+
+    def parameters(self):
+        return self.w + [self.b]
+\end{lstlisting}
+
+The $1/\sqrt{n_{\text{in}}}$ init keeps the dot product's magnitude stable as $n_{\text{in}}$ grows. Small detail, big practical difference.
+
+\section{Why Nonlinearity?}
+
+Without $\tanh$:
+\begin{equation}
+    W_2(W_1 x + b_1) + b_2 = (W_2 W_1)x + (W_2 b_1 + b_2) = Wx + b
+\end{equation}
+No matter how deep, it's still linear. Nonlinearity is what lets deep networks represent nonlinear functions.
+
+\section{A Layer}
+
+\begin{lstlisting}[language=Python, frame=single, caption={A layer}]
+class Layer:
+    def __init__(self, nin, nout):
+        self.neurons = [Neuron(nin) for _ in range(nout)]
+
+    def __call__(self, x):
+        outs = [n(x) for n in self.neurons]
+        return outs[0] if len(outs) == 1 else outs
+
+    def parameters(self):
+        return [p for n in self.neurons for p in n.parameters()]
+\end{lstlisting}
+
+\section{The MLP}
+
+\begin{lstlisting}[language=Python, frame=single, caption={The MLP}]
+class MLP:
+    def __init__(self, nin, nouts):
+        sizes = [nin] + nouts
+        self.layers = [Layer(sizes[i], sizes[i+1]) for i in range(len(nouts))]
+
+    def __call__(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
+
+    def parameters(self):
+        return [p for layer in self.layers for p in layer.parameters()]
+\end{lstlisting}
+For classification, we typically \textbf{do not} apply $\tanh$ on the last layer --- we want raw logits for softmax cross-entropy.
+
+\section{Parameter Count}
+
+For $\text{MLP}(64, [32, 32, 5])$:
+\begin{table}[H]
+\centering
+\caption{Parameter count.}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Layer & Formula & Count \\
+\midrule
+Layer 1 & $32 \times (64+1)$ & 2080 \\
+Layer 2 & $32 \times (32+1)$ & 1056 \\
+Layer 3 & $5 \times (32+1)$ & 165 \\
+\midrule
+\textbf{Total} & & \textbf{3301} \\
+\bottomrule
+\end{tabular}
+\end{table}
+Fixed by architecture, not by dataset size.
+
+\section{Every Forward Pass Is a Composition}
+
+1. $w_1 \cdot x + b_1$, apply $\tanh$.
+2. $w_2 \cdot h_1 + b_2$, apply $\tanh$.
+3. $w_3 \cdot h_2 + b_3$.
+4. Return logits.
+Every step is \texttt{Value} operations. Backprop walks the graph once, and every gradient is filled in.
+
+\chapter{The Loss}\label{ch:loss}
+
+\section{What a Loss Does}
+
+A loss function turns ``how wrong is the model?'' into a single number. It's the thing we minimize.
+
+\section{Cross-Entropy for Classification}
+
+For logits $z = [z_1, \ldots, z_C]$ and target class $t$:
+\begin{equation}
+    \text{softmax}(z)_i = \frac{e^{z_i}}{\sum_j e^{z_j}}, \qquad
+    \text{loss} = -\log(\text{softmax}(z)_t)
+\end{equation}
+The model predicts a probability distribution. Loss penalizes low probability on the correct class.
+
+\section{Why Log + Softmax?}
+
+The gradient w.r.t. the logits works out beautifully:
+\begin{equation}
+    \frac{\partial\text{loss}}{\partial z_i} = \text{softmax}(z)_i - \mathbb{1}[i = t]
+\end{equation}
+Predicted probability minus one-hot target. Well-scaled, never vanishing, never exploding.
+\textbf{Backprop derives this automatically.}
+
+\section{Why Not MSE?}
+
+For classification, MSE + $\tanh$-bounded outputs works but badly:
+$\tanh$ saturates, gradients vanish when confidently wrong. MSE's gradient on probabilities is small near 0 or 1, even if the answer is very wrong.
+
+\section{Numerical Stability}
+
+$e^z$ overflows for large $z$. Subtract the max before exponentiating. Softmax is invariant to this shift.
+\begin{lstlisting}[language=Python, frame=single, caption={Stable softmax cross-entropy}]
+def softmax_cross_entropy(logits, target_idx):
+    max_val = max(z.data for z in logits)
+    shifted = [z - max_val for z in logits]
+    exps = [s.exp() for s in shifted]
+    total = exps[0]
+    for e in exps[1:]:
+        total = total + e
+    probs = [e / total for e in exps]
+    return -probs[target_idx].log()
+\end{lstlisting}
+
+\chapter{The Training Process}\label{ch:training}
+
+\section{Step 1: Define the Model}
+\begin{lstlisting}[language=Python, caption={Model creation}]
+model = MLP(64, [32, 32, 5])
+params = model.parameters()
+\end{lstlisting}
+
+\section{Step 2: Prepare Data}
+Each sample is (image, label), where image is 64 pixels, label $\in \{0,1,2,3,4\}$.
+
+\section{Step 3: The Loop}
+For each batch:
+\begin{lstlisting}[language=Python, caption={Complete training step}]
+# --- Forward ---
+batch_loss = Value(0.0)
+for img, label in batch:
+    x = [Value(p) for p in img]
+    logits = model(x)
+    batch_loss = batch_loss + softmax_cross_entropy(logits, label)
+batch_loss = batch_loss * (1.0 / BATCH_SIZE)
+
+# --- Backward ---
+for p in params: p.grad = 0.0
+batch_loss.backward()
+
+# --- Update ---
+for p in params:
+    p.data -= LEARNING_RATE * p.grad
+\end{lstlisting}
+
+\subsection{Zeroing Gradients}
+Because \texttt{\_backward} uses \texttt{+=}, and \texttt{p.grad} may still hold yesterday's value. Without zeroing, gradients accumulate across epochs and training diverges.
+
+\section{What Changes as the Model Learns}
+Early: loss decreases rapidly. Middle: model finds useful features. Late: slow decrease. If training and test loss diverge, the model is \textbf{overfitting}. The \textbf{generalization gap} is the central tension in ML.
+
+\chapter{Putting It All to Work}\label{ch:application}
+
+\section{The Dataset}
+Synthetic $8 \times 8$ images of digits 0--4, drawn as crude strokes. Add 10\% noise. Flatten to 64 pixels.
+\textbf{Why no convolutions?} Our goal is to understand backprop. Convs add a new op with its own transposed-convolution backward, plus im2col and padding arithmetic---obscuring core ideas. The backprop algorithm is \textbf{identical} with or without convs. We flatten. The model loses spatial structure, but gradients remain transparent.
+
+\section{Results}
+After $\sim$40 epochs, $\eta = 0.05$:
+\begin{table}[H]
+\centering
+\caption{Training results.}
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Epoch & Train Loss & Train Acc & Test Loss & Test Acc \\
+\midrule
+0  & 1.5861 & 0.281 & 1.5618 & 0.300 \\
+10 & 0.2210 & 0.881 & 0.3412 & 0.775 \\
+20 & 0.0781 & 0.963 & 0.2218 & 0.850 \\
+39 & 0.0281 & 0.991 & 0.1540 & 0.925 \\
+\bottomrule
+\end{tabular}
+\end{table}
+Train accuracy climbs to 99\%. Test accuracy plateaus at 92.5\%.
+
+\section{What the Model Learned}
+Reshaping first-layer weights to $8 \times 8$ reveals stroke detectors---horizontal bars, verticals, diagonals. The second layer combines these into digit-part detectors. The third layer produces class scores. This hierarchy emerges \textbf{automatically} from gradient descent on a differentiable function. We never told the model ``look for strokes.''
+
+\section{What We Skipped}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Convolutions} --- restore spatial structure, more op complexity.
+    \item \textbf{Vectorization (NumPy/Tensors)} --- 100$\times$ faster, hides elementwise ops.
+    \item \textbf{Better optimizers} --- momentum, Adam. Same backprop, better use of gradients.
+    \item \textbf{Regularization} --- dropout, weight decay. Improve generalization.
+\end{itemize}
+All are \textbf{refinements on the same core loop}: forward, backward, step. The math is unchanged.
+
+\chapter*{Summary}
+\addcontentsline{toc}{chapter}{Summary}
+
+In one paragraph: Every parameter in a neural network has a derivative: how the loss changes when you nudge that parameter. Gradient descent uses these derivatives to step each parameter downhill. The chain rule tells us how to compute the derivative of a composition --- multiply local derivatives along the path. Backprop is the chain rule applied systematically: build a graph on the forward pass, walk it backward to compute every parameter's gradient in one pass. A neural network is a composition of simple differentiable functions --- linear combinations and nonlinearities. Training is a loop: forward to compute loss, backward to compute gradients, update to nudge parameters. Everything else --- convs, attention, transformers --- is a new differentiable op with a new local derivative. The engine never changes.
+
+That's backprop from the ground up.
+
+\chapter*{Exercises}
+\addcontentsline{toc}{chapter}{Exercises}
+
+\begin{enumerate}[label=\textbf{\arabic*.}, leftmargin=*]
+    \item \textbf{Trace by hand.} Take a 2-input neuron with known weights and a known input, and compute forward and backward by hand. Verify with the code.
+    \item \textbf{Break \texttt{+=}.} Replace \texttt{+=} with \texttt{=} in \texttt{\_add\_}'s \texttt{\_backward}. Test on a graph where a value is used twice. Watch gradients come out wrong.
+    \item \textbf{Add \texttt{relu}.} Derive its local derivative. Implement \texttt{\_backward}. Compare convergence to $\tanh$.
+    \item \textbf{Remove gradient zeroing.} See training diverge. Understand why.
+    \item \textbf{Try MSE + $\tanh$ on classification.} Compare the loss curve. You'll see the well-known pathology: slow early training.
+    \item \textbf{Print the graph.} Write a function that walks \texttt{\_prev} from a loss node and prints the operations. See the DAG.
+    \item \textbf{Swap in NumPy.} Wrap arrays instead of scalars. Same math, 100$\times$ faster, new complexity: broadcasting.
+    \item \textbf{Add a conv.} Build a 3$\times$3 filter that slides over the image. Derive its backward (a transposed convolution). Re-run the digit task. See the accuracy jump.
+\end{enumerate}
+Each exercise targets a specific piece of intuition. Doing them all gives you the full picture.
+
+\chapter*{References}
+\addcontentsline{toc}{chapter}{References}
+
+\begin{thebibliography}{9}
+\bibitem{goodfellow2016} Goodfellow~I., Bengio~Y., Courville~A. \textit{Deep Learning}. MIT Press, 2016.
+\bibitem{rumelhart1986} Rumelhart~D.~E., Hinton~G.~E., Williams~R.~J. ``Learning Representations by Back-propagating Errors.'' \textit{Nature}, 323:533--536, 1986.
+\bibitem{lecun2015} LeCun~Y., Bengio~Y., Hinton~G. ``Deep learning.'' \textit{Nature}, 521:436--444, 2015.
+\bibitem{mikolov2012} Mikolov~T., Chen~K., Corrado~G., Dean~J. ``Efficient Estimation of Word Representations in Vector Space.'' \textit{arXiv:1301.3781}, 2012.
+\bibitem{colt} Colt: \textit{An Open-Source Auto-Differentiation Engine in C++} (Inspiration for the tiny-\texttt{grad} style of autograd engine.)
+\end{thebibliography}
+
+\end{document}

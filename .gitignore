@@ -1,0 +1,38 @@
+# Build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.nav
+*.snm
+*.vrb
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Compiled PDFs (keep sources only)
+# Uncomment to ignore PDFs:
+# *.pdf
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Test artifacts
+test_*.aux
+test_*.log
+test_*.pdf
+texput.*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
